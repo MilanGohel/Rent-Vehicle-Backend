@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const stripe = require("stripe")(
-  "sk_test_51K8lJeSGkXsHpk6s5rnSzxHsShc9bYWdupt7krPVubHYS06G8zhZj2dyA208tSj86k3RKKsHc3meQsdohlq5V7Po004oYO8LpQ"
+  "sk_test_51Oo1mESANYloZJkUTor26BoRjQ77inVbSmbA4OfbwY37MIL3k2CR8kqAeinQiQMsYJLeunlIZ6bt1jT2LHF1GkmK0095zyoCAz"
 );
 const Booking = require("../Models/bookingModel");
 const Car = require("../Models/carModel");
@@ -11,6 +11,7 @@ exports.bookCar = async (req, res) => {
       email: token.email,
       source: token.id,
     });
+    console.log(customer);
 
     const payment = await stripe.charges.create(
       {
@@ -26,18 +27,48 @@ exports.bookCar = async (req, res) => {
     );
 
     if (payment) {
-      req.body.transactionId = payment.source.id;
+      // req.body.transactionId = payment.source.id;
+      res.send("Your booking is successfull");
       const newbooking = new Booking(req.body);
       await newbooking.save();
       const car = await Car.findOne({ _id: req.body.car });
-      console.log(req.body.car);
-      car.bookedTimeSlots.push(req.body.bookedTimeSlots);
+
+      const booking = {bookingId: newbooking._id.toString(),...req.body.bookedTimeSlots}
+      // console.log(car  + "car")
+      car.bookedTimeSlots.push(booking);
+      car.isBooked = true;
+      // console.log(req.body.car);
 
       await car.save();
-      res.send("Your booking is successfull");
+      res.send("Booking success")
     } else {
-      return res.status(400).json(error);
-    }
+
+        return res.status(400).json(error);
+      }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error);
+  }
+};
+exports.bookCarUsingCash = async (req, res) => {
+
+  try {
+    
+      // req.body.transactionId = payment.source.id;
+      // res.send("Your booking is successfull");
+      const newbooking = new Booking(req.body);
+      await newbooking.save();
+      const car = await Car.findOne({ _id: req.body.car });
+      console.log(car);
+      const booking = {bookingId: newbooking._id.toString(),...req.body.bookedTimeSlots}
+      // console.log(car  + "car")
+      car.bookedTimeSlots.push(booking);
+      car.isBooked = true;
+      // console.log(req.body.car);
+
+      await car.save();
+      res.send("Booking success")
+    
   } catch (error) {
     console.log(error);
     return res.status(400).json(error);

@@ -1,8 +1,10 @@
 const User = require("../Models/userModal");
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+  console.log(email + " " + password);
   try {
-    const user = await User.findOne({ email, password });
+    const user = await User.findOne({email, password}).select("-password");
+    console.log(user);
     if (user) {
       res.send(user);
     } else {
