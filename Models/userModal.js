@@ -9,6 +9,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  aadharNumber: { type:String },
+  drivingLicense: {type: String},
+  isVerifiedUser: {type: Boolean , default: false},
+  dateOfBirth: {type: Date}
 });
 
 const userModel = mongoose.model("users", userSchema);
